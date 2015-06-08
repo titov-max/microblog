@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Редактирование профиля</h1>
+<form action="" method="POST" name="edit">
+	{{form.hidden_tag()}}
+	<table>
+		<tr>
+			<td>Никнейм</td>
+			<td>{{form.nickname(size = 24)}}</td>
+		</tr>
+		<tr>
+			<td>День рождения</td>
+			<td>{{form.birthdate(format='%d-%m-%Y')}}</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td><input type="submit" value="Сохранить"></td>
+		</tr>
+	</table>
+</form>
+{% endblock %}

@@ -1,5 +1,6 @@
 from app import db, lm
 from flask.ext.login import LoginManager, UserMixin
+from hashlib import md5
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -11,9 +12,14 @@ class User(UserMixin, db.Model):
 	role = db.Column(db.SmallInteger, default = ROLE_USER)
 	posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
 	social_id = db.Column(db.String(64), unique = True)
+	birthdate = db.Column(db.DateTime)
+	last_seen = db.Column(db.DateTime)
 
 	def __repr__(self):
 		return '<User %r>' % (self.nickname)
+
+	def avatar(self, size):
+		return 'http://www.gravatar.com/avatar/' + md5(self.email).hexdigest() + '?d=mm&s=' + str(size)
 
 @lm.user_loader
 def load_user(id):
