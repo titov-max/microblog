@@ -12,7 +12,6 @@ class User(UserMixin, db.Model):
 	role = db.Column(db.SmallInteger, default = ROLE_USER)
 	posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
 	social_id = db.Column(db.String(64), unique = True)
-	birthdate = db.Column(db.DateTime)
 	last_seen = db.Column(db.DateTime)
 
 	def __repr__(self):
@@ -20,6 +19,18 @@ class User(UserMixin, db.Model):
 
 	def avatar(self, size):
 		return 'http://www.gravatar.com/avatar/' + md5(self.email).hexdigest() + '?d=mm&s=' + str(size)
+
+	@staticmethod
+	def make_unique_nickname(nickname):
+		if User.query.filter_by(nickname = nickname).first() == None:
+			return nickname
+		version = 2
+		while True:
+			new_nickname = nickname + str(version)
+			if User.query.filter_by(nickname = new_nickname).first() == None:
+				break
+			version += 1
+		return new_nickname
 
 @lm.user_loader
 def load_user(id):

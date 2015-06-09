@@ -58,7 +58,11 @@ def oauth_callback(provider):
 		return redirect(url_for('login'))
 	user = User.query.filter_by(social_id=social_id).first()
 	if user is None:
-		user = User(social_id=social_id, nickname=username, email=email, role=ROLE_USER)
+		nickname = resp.nickname
+		if nickname is None or nickname == "":
+			nickname = resp.email.split('@')[0]
+		nickname = User.make_unique_nickname(nickname)
+		user = User(social_id=social_id, nickname=username, email=resp.email, role=ROLE_USER)
 		db.session.add(user)
 		db.session.commit()
 	login_user(user, True)
@@ -82,17 +86,15 @@ def user(nickname):
 @app.route('/edit', methods=['GET', 'POST'])
 @login_required
 def edit():
-	form = EditForm()
+	form = EditForm(g.user.nickname)
 	if form.validate_on_submit():
 		g.user.nickname = form.nickname.data
-		g.user.birthdate = form.birthdate.data
 		db.session.add(g.user)
 		db.session.commit()
 		flash('Ваши изменения были сохранены')
 		return redirect(url_for('edit'))
 	else:
 		form.nickname.data = g.user.nickname
-		form.birthdate.data = g.user.birthdate
 	return render_template('edit.html', form = form)
 
 @app.before_request
@@ -102,3 +104,12 @@ def before_request():
 		g.user.last_seen = datetime.utcnow()
 		db.session.add(g.user)
 		db.session.commit()
+
+@app.errorhandler(404)
+def not_found_error(error):
+	return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+	db.session.rollback()
+	return render_template('500.html'), 500
