@@ -65,6 +65,9 @@ def oauth_callback(provider):
 		user = User(social_id=social_id, nickname=username, email=resp.email, role=ROLE_USER)
 		db.session.add(user)
 		db.session.commit()
+		# user follow himself
+		db.session.add(user.follow(user))
+		db.session.commit()
 	login_user(user, True)
 	return redirect(request.args.get('next') or url_for('index'))
 
@@ -96,6 +99,44 @@ def edit():
 	else:
 		form.nickname.data = g.user.nickname
 	return render_template('edit.html', form = form)
+
+@app.route('/follow/<nickname>')
+@login_required
+def follow(nickname):
+	user = User.query.filter_by(nickname = nickname).first()
+	if user == None:
+		flash('Пользователь {0} не найден'.format(nickname))
+		return redirect(url_for('index'))
+	if user == g.user:
+		flash("Вы не можете подписаться на себя")
+		return redirect(url_for('user', nickname = nickname))
+	u = g.user.follow(user)
+	if u is None:
+		flash('Невозможно подписаться на {0}'.format(nickname))
+		return redirect(url_for('user', nickname = nickname))
+	db.session.add(u)
+	db.session.commit()
+	flash('Теперь Вы подписаны на {0}'.format(nickname))
+	return redirect(url_for('user', nickname = nickname))
+
+@app.route('/unfollow/<nickname>')
+@login_required
+def unfollow(nickname):
+	user = User.query.filter_by(nickname = nickname).first()
+	if user == None:
+		flash('Пользователь {0} не найден'.format(nickname))
+		return redirect(url_for('index'))
+	if user == g.user:
+		flash("Вы не можете отписаться от себя")
+		return redirect(url_for('user', nickname = nickname))
+	u = g.user.unfollow(user)
+	if u is None:
+		flash('Невозможно отписаться от {0}'.format(nickname))
+		return redirect(url_for('user', nickname = nickname))
+	db.session.add(u)
+	db.session.commit()
+	flash('Вы отписались от обновлений {0}'.format(nickname))
+	return redirect(url_for('user', nickname = nickname))
 
 @app.before_request
 def before_request():
