@@ -4,15 +4,22 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from app import app, db, lm
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from models import User, ROLE_USER, ROLE_ADMIN
+from models import User, ROLE_USER, ROLE_ADMIN, Post
 from oauth import OAuthSignIn
 from datetime import datetime
-from forms import EditForm
+from forms import EditForm, PostForm
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods = ['GET', 'POST'])
+@app.route('/index', methods = ['GET', 'POST'])
 @login_required
 def index():
+	form = PostForm()
+	if form.validate_on_submit():
+		post = Post(body = form.post.data, timestamp = datetime.utcnow(), author = g.user)
+		db.session.add(post)
+		db.session.commit()
+		flash('Ваше сообщение добавлено!')
+		return redirect(url_for('index'))
 	user = g.user
 	posts = [
 		{ 
