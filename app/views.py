@@ -34,7 +34,8 @@ def index():
 	return render_template("index.html",
 		title = u'Главная',
 		user = user,
-		posts = posts)
+		posts = posts,
+		form = form)
 
 @app.route('/login')
 def login():

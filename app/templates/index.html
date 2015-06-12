@@ -9,7 +9,7 @@
 			<td>Что Вы хотите сказать?</td>
 			<td>{{ form.post(size = 30, maxlength = 140) }}</td>
 			<td>
-				{% for error in formm.errors.post %}
+				{% for error in form.errors.post %}
 					<span style="color: red;">[{{ error }}]</span><br/>
 				{% endfor %}
 			</td>
