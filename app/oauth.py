@@ -59,10 +59,19 @@ class FacebookSignIn(OAuthSignIn):
                   'grant_type': 'authorization_code',
                   'redirect_uri': self.get_callback_url()}
         )
+        print "*" * 10
+        print dir(oauth_session)
+        print "*" * 10
+        print "*" * 10
+        print oauth_session.get('me')
+        print "*" * 10
         me = oauth_session.get('me').json()
+        print "*" * 10
+        print me
+        print "*" * 10
         return (
             'facebook$' + me['id'],
-            me.get('email').split('@')[0],  # Facebook does not provide
+            me.get('first_name') + ' ' + me.get('last_name'),  # Facebook does not provide
                                             # username, so the email's user
                                             # is used instead
             me.get('email')
@@ -91,18 +100,50 @@ class VkSignIn(OAuthSignIn):
         if 'code' not in request.args:
             return None, None, None
 
-        print "!!!### Debug: Imhere!"
         oauth_session = self.service.get_auth_session(
             data={'code': request.args['code'],
                   'redirect_uri': self.get_callback_url(),
                   'grant_type': 'authorization_code'},
             decoder=json.loads
         )
-        print '!!!### DEBUG_MAX: ', oauth_session
-        me = oauth_session.get('access_token').json()
-        print '!!!### DEBUG_MAX: ', me
+        me = oauth_session.access_token_response.json()
         return (
-            'vk$' + me.get('user_id'),
+            'vk$' + str(me.get('user_id')),
             me.get('email').split('@')[0],
             me.get('email')
         )
+
+"""class GoogleSignIn(OAuthSignIn):
+    def __init__(self):
+        super(GoogleSignIn, self).__init__('google')
+        self.service = OAuth2Service(
+            name='google',
+            client_id=self.consumer_id,
+            client_secret=self.consumer_secret,
+            authorize_url='https://accounts.google.com/o/oauth2/auth',
+            access_token_url='https://accounts.google.com/o/oauth2/token',
+            base_url='https://accounts.google.com'
+        )
+
+    def authorize(self):
+        return redirect(self.service.get_authorize_url(
+            scope='https://www.googleapis.com/auth/gmail.readonly',
+            response_type='code',
+            redirect_uri=self.get_callback_url())
+        )
+
+    def callback(self):
+        if 'code' not in request.args:
+            return None, None, None
+
+        oauth_session = self.service.get_auth_session(
+            data={'code': request.args['code'],
+                  'redirect_uri': self.get_callback_url(),
+                  'grant_type': 'authorization_code'}
+        )
+        credentials = oauth_session.get('credentials').json()
+        return (
+            'google$' + credentials.get('user_id'),
+            credentials.get('email').split('@')[0],
+            credentials.get('email')
+        )"""

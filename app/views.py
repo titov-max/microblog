@@ -58,11 +58,11 @@ def oauth_callback(provider):
 		return redirect(url_for('login'))
 	user = User.query.filter_by(social_id=social_id).first()
 	if user is None:
-		nickname = resp.nickname
+		nickname = username
 		if nickname is None or nickname == "":
-			nickname = resp.email.split('@')[0]
+			nickname = email.split('@')[0]
 		nickname = User.make_unique_nickname(nickname)
-		user = User(social_id=social_id, nickname=username, email=resp.email, role=ROLE_USER)
+		user = User(social_id=social_id, nickname=nickname, email=email, role=ROLE_USER)
 		db.session.add(user)
 		db.session.commit()
 		# user follow himself

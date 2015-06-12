@@ -17,11 +17,11 @@ class User(UserMixin, db.Model):
 	role = db.Column(db.SmallInteger, default = ROLE_USER)
 	posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
 	followed = db.relationship('User', 
-		secondary = followers,
-		primaryjoin = (followers.c.follower_id == id),
-		secondaryjoin = (followers.c.followed_id == id),
-		backref = db.backref('followers', lazy = 'dynamic'),
-		lazy = 'dynamic'),
+		secondary = followers, 
+		primaryjoin = (followers.c.follower_id == id), 
+		secondaryjoin = (followers.c.followed_id == id), 
+		backref = db.backref('followers', lazy = 'dynamic'), 
+		lazy = 'dynamic')
 	social_id = db.Column(db.String(64), unique = True)
 	last_seen = db.Column(db.DateTime)
 
@@ -42,7 +42,7 @@ class User(UserMixin, db.Model):
 			return self
 
 	def is_following(self, user):
-		return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+		return User.query.join(followers, (followers.c.follower_id == self.id)).filter(followers.c.followed_id == user.id).count() > 0
 
 	def followed_posts(self):
 		return Post.query.join(followers, (followers.c.followed_id == Post.user_id)).filter(followers.c.follower_id == self.id).order_by(Post.timestamp.desc())
