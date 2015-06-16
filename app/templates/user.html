@@ -26,7 +26,18 @@
 </table>
 <hr/>
 <h3>Лента:</h3>
-{% for post in posts %}
+{% for post in posts.items %}
 	{% include 'post.html' %}
 {% endfor %}
+<table>
+	<tr>
+		<td>
+			{% if posts.has_prev %}<a href="{{url_for('user', page=posts.prev_num)}}"><- сюда</a>{% else %}<- сюда{% endif %}
+		</td>
+		<td>|</td>
+		<td>
+			{% if posts.has_next %}<a href="{{url_for('user', page=posts.next_num)}}">туда -></a>{% else %}туда ->{% endif %}
+		</td>
+	</tr>
+</table>
 {% endblock %}

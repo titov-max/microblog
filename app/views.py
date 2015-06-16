@@ -11,8 +11,9 @@ from forms import EditForm, PostForm
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
+@app.route('/index/<int:page>', methods = ['GET', 'POST'])
 @login_required
-def index():
+def index(page = 1):
 	form = PostForm()
 	if form.validate_on_submit():
 		post = Post(body = form.post.data, timestamp = datetime.utcnow(), author = g.user)
@@ -21,16 +22,7 @@ def index():
 		flash('Ваше сообщение добавлено!')
 		return redirect(url_for('index'))
 	user = g.user
-	posts = [
-		{ 
-            'author': { 'nickname': 'John' }, 
-            'body': 'Beautiful day in Portland!' 
-        },
-        { 
-            'author': { 'nickname': 'Susan' }, 
-            'body': 'The Avengers movie was so cool!' 
-        }
-    ]
+	posts = g.user.followed_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)
 	return render_template("index.html",
 		title = u'Главная',
 		user = user,
@@ -80,21 +72,19 @@ def oauth_callback(provider):
 	return redirect(request.args.get('next') or url_for('index'))
 
 @app.route('/user/<nickname>')
+@app.route('/user/<nickname>/<int:page>')
 @login_required
-def user(nickname):
+def user(nickname, page = 1):
 	user = User.query.filter_by(nickname = nickname).first()
 	if user == None:
 		flash('User ' + nickname + ' not found.')
 		return redirect(url_for('index'))
-	posts = [
-		{ 'author': user, 'body': 'Test post #1' },
-		{ 'author': user, 'body': 'Test post #2' }
-	]
+	posts = user.followed_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)
 	return render_template('user.html',
     	user = user,
     	posts = posts)
 
-@app.route('/edit', methods=['GET', 'POST'])
+@app.route('/edit', methods = ['GET', 'POST'])
 @login_required
 def edit():
 	form = EditForm(g.user.nickname)
