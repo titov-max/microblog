@@ -1,6 +1,7 @@
-from app import db, lm
+from app import db, lm, app
 from flask.ext.login import LoginManager, UserMixin
 from hashlib import md5
+import flask.ext.whooshalchemy as whooshalchemy
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -64,6 +65,8 @@ def load_user(id):
     return User.query.get(int(id))
 
 class Post(db.Model):
+	__searchable__ = ['body']
+
 	id = db.Column(db.Integer, primary_key = True)
 	body = db.Column(db.String(4000))
 	timestamp = db.Column(db.DateTime)
@@ -71,3 +74,5 @@ class Post(db.Model):
 
 	def __repr__(self):
 		return '<Post %r>' % (self.body)
+
+whooshalchemy.whoosh_index(app, Post)
