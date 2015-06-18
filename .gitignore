@@ -1,0 +1,8 @@
+*.pyc
+config*
+db_*
+*.db
+tmp/
+test*
+runp.py
+run.py
