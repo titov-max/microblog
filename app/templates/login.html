@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Вход в систему</h1>
-	<p>
-		Войти с помощью:<br/>
-		|{% for pr in providers %}
-		<a href="{{ url_for('oauth_authorize', provider=pr) }}">{{pr}}</a>|
+<div class="container">
+	<div class="span12">
+		<h2>Добро пожаловать в microblog!</h2>
+		<h2>Вход в систему</h2>
+		<p>
+		{% for pr in providers %}
+		<a class="btn btn-social-icon btn-{{pr}}" href="{{ url_for('oauth_authorize', provider=pr) }}">
+			<i class="fa fa-{{pr}}"></i>
+		</a>
 		{% endfor %}
 	</p>
+	</div>
+</div>
 {% endblock %}

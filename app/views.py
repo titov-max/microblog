@@ -74,7 +74,7 @@ def oauth_callback(provider):
 @app.route('/user/<nickname>')
 @app.route('/user/<nickname>/<int:page>')
 @login_required
-def user(nickname, page = 1):
+def user(nickname, page=1):
 	user = User.query.filter_by(nickname = nickname).first()
 	if user == None:
 		flash('User ' + nickname + ' not found.')
