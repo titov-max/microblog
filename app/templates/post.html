@@ -1,6 +1,9 @@
-<table>
-	<tr>
-		<td><img src="{{ post.author.avatar(50)}}"></td>
-		<td>{{ post.author.nickname }} says: <b>{{ post.body }}</b></td>
-	</tr>
-</table>
+<div class="table-responsive">
+	<table class="table">
+		<tr>
+			<td class="col-md-1"><img src="{{ post.author.avatar(50)}}"></td>
+			<td class="col-md-5">{{ post.author.nickname }} сказал: <b>{{ post.body }}</b></td>
+			<td class="col-md-5">{{ momentjs(post.timestamp).fromNow() }}</td>
+		</tr>
+	</table>
+</div>

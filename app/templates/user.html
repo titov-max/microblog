@@ -9,7 +9,7 @@
 				<p>День рождения {{ user.birthdate }}</p>
 			{% endif %}
 			{% if user.last_seen %}
-				<p><i>Заходил {{ user.last_seen }}</i></p>
+				<p><i>Заходил {{ momentjs(user.last_seen).format('DD-MM-YYYY, H:mm:ss') }}</i></p>
 			{% endif %}
 			<p>
 				

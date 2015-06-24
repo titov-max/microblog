@@ -5,6 +5,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 import os
 from flask.ext.login import LoginManager, UserMixin
 from config import basedir
+from momentjs import momentjs
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -25,3 +26,5 @@ if not app.debug:
 	file_handler.setLevel(logging.INFO)
 	app.logger.addHandler(file_handler)
 	app.logger.info('microblog startup')
+
+app.jinja_env.globals['momentjs'] = momentjs
