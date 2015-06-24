@@ -6,3 +6,4 @@ tmp/
 test*
 runp.py
 run.py
+.idea/*

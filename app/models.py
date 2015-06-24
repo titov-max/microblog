@@ -2,6 +2,7 @@ from app import db, lm, app
 from flask.ext.login import LoginManager, UserMixin
 from hashlib import md5
 import flask.ext.whooshalchemy as whooshalchemy
+import re
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -50,19 +51,23 @@ class User(UserMixin, db.Model):
 
 	@staticmethod
 	def make_unique_nickname(nickname):
-		if User.query.filter_by(nickname = nickname).first() == None:
+		if User.query.filter_by(nickname = nickname).first() is None:
 			return nickname
 		version = 2
 		while True:
 			new_nickname = nickname + str(version)
-			if User.query.filter_by(nickname = new_nickname).first() == None:
+			if User.query.filter_by(nickname = new_nickname).first() is None:
 				break
 			version += 1
 		return new_nickname
 
+	@staticmethod
+	def make_valid_nickname(nickname):
+		return re.sub('[^a-zA-Z0-9_\.]', '', nickname)
+
 @lm.user_loader
 def load_user(id):
-    return User.query.get(int(id))
+	return User.query.get(int(id))
 
 class Post(db.Model):
 	__searchable__ = ['body']

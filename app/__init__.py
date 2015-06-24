@@ -6,10 +6,14 @@ import os
 from flask.ext.login import LoginManager, UserMixin
 from config import basedir
 from momentjs import momentjs
+from flask.ext.babel import Babel
 
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+
+# l10n
+babel = Babel(app)
 
 # Настройка авторизации
 lm = LoginManager()

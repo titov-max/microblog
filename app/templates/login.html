@@ -3,8 +3,8 @@
 
 <div class="container">
 	<div class="span12">
-		<h2>Добро пожаловать в microblog!</h2>
-		<h2>Вход в систему</h2>
+		<h2>{{ _('Welcome to') }} microblog!</h2>
+		<h2>{{ _('Log In') }}</h2>
 		<p>
 		{% for pr in providers %}
 		<a class="btn btn-social-icon btn-{{pr}}" href="{{ url_for('oauth_authorize', provider=pr) }}">

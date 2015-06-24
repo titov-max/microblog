@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template, flash, redirect, session, url_for, request, g
-from app import app, db, lm
+from app import app, db, lm, babel
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from models import User, ROLE_USER, ROLE_ADMIN, Post
 from oauth import OAuthSignIn
 from datetime import datetime
 from forms import EditForm, PostForm, SearchForm
+from config import LANGUAGES
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
@@ -61,6 +62,7 @@ def oauth_callback(provider):
 		nickname = username
 		if nickname is None or nickname == "":
 			nickname = email.split('@')[0]
+		nickname = User.make_valid_nickname(nickname)
 		nickname = User.make_unique_nickname(nickname)
 		user = User(social_id=social_id, nickname=nickname, email=email, role=ROLE_USER)
 		db.session.add(user)
@@ -76,13 +78,13 @@ def oauth_callback(provider):
 @login_required
 def user(nickname, page=1):
 	user = User.query.filter_by(nickname = nickname).first()
-	if user == None:
+	if user is None:
 		flash('User ' + nickname + ' not found.')
 		return redirect(url_for('index'))
 	posts = user.followed_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)
 	return render_template('user.html',
-    	user = user,
-    	posts = posts)
+		user = user,
+		posts = posts)
 
 @app.route('/edit', methods = ['GET', 'POST'])
 @login_required
@@ -102,7 +104,7 @@ def edit():
 @login_required
 def follow(nickname):
 	user = User.query.filter_by(nickname = nickname).first()
-	if user == None:
+	if user is None:
 		flash('Пользователь {0} не найден'.format(nickname))
 		return redirect(url_for('index'))
 	if user == g.user:
@@ -121,7 +123,7 @@ def follow(nickname):
 @login_required
 def unfollow(nickname):
 	user = User.query.filter_by(nickname = nickname).first()
-	if user == None:
+	if user is None:
 		flash('Пользователь {0} не найден'.format(nickname))
 		return redirect(url_for('index'))
 	if user == g.user:
@@ -168,3 +170,7 @@ def not_found_error(error):
 def internal_error(error):
 	db.session.rollback()
 	return render_template('500.html'), 500
+
+@babel.localeselector
+def get_locale():
+	return request.accept_languages.best_match(LANGUAGES.keys())
